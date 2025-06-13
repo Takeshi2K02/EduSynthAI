@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CommonLayout from './components/CommonLayout';
+import Login from './pages/Login';
 
 const App = () => {
   useEffect(() => {
@@ -13,6 +14,7 @@ const App = () => {
     <CommonLayout>
       <Routes>
         <Route path="/" element={<h1 className="text-3xl">Home</h1>} />
+        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<h1 className="text-2xl">Dashboard</h1>} />
       </Routes>
     </CommonLayout>

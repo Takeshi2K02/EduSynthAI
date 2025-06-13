@@ -11,7 +11,7 @@ export default function CommonLayout({ children }) {
   const navigate = useNavigate();
 
   const isDark = useSelector((state) => state.theme.dark);
-  const user = { username: 'Guest' };
+  const { user } = useSelector((state) => state.auth);
 
   const handleThemeToggle = () => {
     dispatch(toggleTheme());
