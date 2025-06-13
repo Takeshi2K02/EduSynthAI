@@ -1,0 +1,2 @@
+# EduSynthAI
+EduSynthAI is an AI-powered learning platform that enables users to create, manage, and engage with intelligent, modular courses. Leveraging the Gemini API and YouTube Data API, the platform supports both user-generated and AI-generated content, including learning materials, videos, and quizzes. Features include course progress tracking, MCQ evaluation, and downloadable quiz papers. Built with the MERN stack and Python integrations.
