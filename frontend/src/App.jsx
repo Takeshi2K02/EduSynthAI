@@ -1,14 +1,21 @@
 // frontend/src/App.jsx
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import CommonLayout from './components/CommonLayout';
 
 const App = () => {
+  useEffect(() => {
+    const theme = localStorage.getItem('theme');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, []);
+
   return (
-    <div className="min-h-screen bg-secondary text-black dark:bg-dark dark:text-white">
+    <CommonLayout>
       <Routes>
-        <Route path="/" element={<h1 className="text-3xl p-4">Welcome to EduSynthAI</h1>} />
-        <Route path="/dashboard" element={<h1 className="text-2xl p-4">Dashboard</h1>} />
+        <Route path="/" element={<h1 className="text-3xl">Home</h1>} />
+        <Route path="/dashboard" element={<h1 className="text-2xl">Dashboard</h1>} />
       </Routes>
-    </div>
+    </CommonLayout>
   );
 };
 

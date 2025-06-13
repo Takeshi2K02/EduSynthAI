@@ -1,3 +1,21 @@
+:root {
+  --primary: #00ABE4;
+  --primary-hover: #0090c7;
+  --bg: #ffffff;
+  --bg-subtle: #f7fafd;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+}
+
+.dark {
+  --bg: #1e1e1e;
+  --bg-subtle: #2a2a2a;
+  --text: #f9f9f9;
+  --text-muted: #9ca3af;
+  --border: #3f3f3f;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
