@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../redux/slices/themeSlice';
+import { logout } from '../redux/slices/authSlice';
 
 export default function CommonLayout({ children }) {
   const [open, setOpen] = useState(false);
@@ -21,7 +22,7 @@ export default function CommonLayout({ children }) {
 
 
   const handleLogout = () => {
-    console.log('Logout clicked');
+    dispatch(logout());
     navigate('/login');
   };
 
@@ -88,7 +89,7 @@ export default function CommonLayout({ children }) {
             </button>
 
             <span className="text-sm font-medium text-[var(--text-muted)]">
-              {user.username}
+              {user?.username || 'Guest'}
             </span>
 
             <button
