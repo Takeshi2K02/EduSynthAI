@@ -20,7 +20,6 @@ export default function CommonLayout({ children }) {
     document.documentElement.classList.toggle('dark', newTheme);
   };
 
-
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
@@ -92,12 +91,29 @@ export default function CommonLayout({ children }) {
               {user?.username || 'Guest'}
             </span>
 
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 flex items-center justify-center rounded-md bg-[var(--primary)] text-white text-sm font-medium shadow hover:bg-[var(--primary-hover)] transition leading-none"
-            >
-              Logout
-            </button>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 flex items-center justify-center rounded-md bg-[var(--primary)] text-white text-sm font-medium shadow hover:bg-[var(--primary-hover)] transition leading-none"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="px-4 py-2 rounded-md bg-[var(--primary)] text-white text-sm font-medium shadow hover:bg-[var(--primary-hover)] transition"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="px-4 py-2 rounded-md border border-[var(--primary)] text-[var(--primary)] text-sm font-medium shadow hover:bg-[var(--primary)] hover:text-white transition"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
         </header>
 
