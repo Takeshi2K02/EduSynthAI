@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+
 import CommonLayout from './components/CommonLayout';
 
 import Login from './pages/Login';
 import Registration from './pages/Registration';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Dashboard from './pages/Dashboard';
 
 const App = () => {
   useEffect(() => {
@@ -21,7 +23,7 @@ const App = () => {
         <Route path="/register" element={<Registration />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/dashboard" element={<h1 className="text-2xl">Dashboard</h1>} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </CommonLayout>
   );
