@@ -12,7 +12,8 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5000/api/auth/login', form);
       dispatch(login(res.data));
@@ -24,7 +25,10 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center py-12 w-full">
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all"
+      >
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">Sign In</h1>
 
         <input
@@ -59,7 +63,7 @@ const Login = () => {
         </p>
 
         <button
-          onClick={handleLogin}
+          type="submit"
           className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-hover transition-all"
         >
           Login
@@ -73,7 +77,7 @@ const Login = () => {
             Register
           </span>
         </p>
-      </div>
+      </form>
     </div>
   );
 };

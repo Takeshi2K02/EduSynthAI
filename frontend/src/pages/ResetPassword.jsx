@@ -9,7 +9,8 @@ const ResetPassword = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleReset = async () => {
+  const handleReset = async (e) => {
+    e.preventDefault();
     if (password !== confirm) {
       setMessage('Passwords do not match');
       return;
@@ -26,7 +27,10 @@ const ResetPassword = () => {
 
   return (
     <div className="flex items-center justify-center py-12 w-full">
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
+      <form
+        onSubmit={handleReset}
+        className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all"
+      >
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">Reset Your Password</h1>
 
         <input
@@ -46,14 +50,14 @@ const ResetPassword = () => {
         />
 
         <button
-          onClick={handleReset}
+          type="submit"
           className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-hover transition-all"
         >
           Reset Password
         </button>
 
         {message && <p className="text-sm text-center mt-4 text-green-500">{message}</p>}
-      </div>
+      </form>
     </div>
   );
 };
