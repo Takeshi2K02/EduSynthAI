@@ -7,7 +7,8 @@ const Registration = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState(null);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/auth/register', form);
       navigate('/login');
@@ -17,8 +18,11 @@ const Registration = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-secondary to-primary/20 dark:from-dark dark:to-dark">
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
+    <div className="flex items-center justify-center py-12 w-full">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all"
+      >
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">Create Account</h1>
         {['username', 'email', 'password'].map((field, i) => (
           <input
@@ -31,7 +35,7 @@ const Registration = () => {
           />
         ))}
         <button
-          onClick={handleSubmit}
+          type="submit"
           className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-hover transition-all"
         >
           Register
@@ -43,7 +47,7 @@ const Registration = () => {
             Login
           </span>
         </p>
-      </div>
+      </form>
     </div>
   );
 };

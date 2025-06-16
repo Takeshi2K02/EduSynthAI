@@ -3,14 +3,17 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [form, setForm] = useState({ username: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5000/api/auth/login', form);
       dispatch(login(res.data));
@@ -21,8 +24,11 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-secondary to-primary/20 dark:from-dark dark:to-dark m-0 p-0">
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
+    <div className="flex items-center justify-center py-12 w-full">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all"
+      >
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">Sign In</h1>
 
         <input
@@ -33,13 +39,21 @@ const Login = () => {
           className="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-800 dark:border-neutral-700"
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="w-full px-4 py-2 mb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-800 dark:border-neutral-700"
-        />
+        <div className="relative mb-2">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-800 dark:border-neutral-700"
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-primary"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </span>
+        </div>
 
         <p
           onClick={() => navigate('/forgot-password')}
@@ -49,7 +63,7 @@ const Login = () => {
         </p>
 
         <button
-          onClick={handleLogin}
+          type="submit"
           className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-hover transition-all"
         >
           Login
@@ -63,7 +77,7 @@ const Login = () => {
             Register
           </span>
         </p>
-      </div>
+      </form>
     </div>
   );
 };
