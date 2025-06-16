@@ -42,21 +42,27 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-6 space-y-8 h-full overflow-y-auto scrollbar-hide">
-      <h1 className="text-3xl font-bold text-primary">Your Courses</h1>
+    <div className="relative h-full overflow-y-auto scrollbar-hide p-6 space-y-8">
 
-      {Object.keys(courseData).map((status) => (
-        <div key={status}>
-          <h2 className="text-xl font-semibold mb-2">{status} Courses</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* === Background Glow Effects === */}
+        <div className="absolute top-10 left-10 w-80 h-80 bg-[#29AFCD] rounded-full blur-[70px] opacity-50 -z-10"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-[90px] opacity-40 -z-10"></div>
+
+        {/* === Main Content === */}
+        <h1 className="text-3xl font-bold text-primary z-10">Your Courses</h1>
+
+        {Object.keys(courseData).map((status) => (
+        <div key={status} className="z-10 relative">
+            <h2 className="text-xl font-semibold mb-2">{status} Courses</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {courseData[status].map((course, index) => (
-              <CourseStatusCard key={index} index={index} status={status} {...course} />
+                <CourseStatusCard key={index} index={index} status={status} {...course} />
             ))}
-          </div>
+            </div>
         </div>
-      ))}
+        ))}
     </div>
-  );
+    );
 };
 
 export default Dashboard;

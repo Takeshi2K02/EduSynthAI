@@ -26,7 +26,7 @@ export default function CommonLayout({ children }) {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-[var(--bg)] text-[var(--text)] flex">
+    <div className="w-screen h-screen bg-[var(--bg)] text-[var(--text)] flex overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-20 w-64 bg-[var(--bg-subtle)] border-r border-[var(--border)]
@@ -51,9 +51,9 @@ export default function CommonLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${open ? 'ml-64' : 'ml-0'} overflow-hidden`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${open ? 'ml-64' : 'ml-0'}`}>
         {/* Top bar */}
-        <header className="flex items-center justify-between bg-[var(--bg-subtle)] px-6 py-4 border-b border-[var(--border)] shrink-0">
+        <header className="sticky top-0 z-30 flex items-center justify-between bg-[var(--bg-subtle)] px-6 py-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-4">
             <button onClick={() => setOpen(!open)} className="text-[var(--primary)] p-2 rounded-md focus:outline-none">
               {open ? <FiX size={24} /> : <FiMenu size={24} />}
@@ -103,7 +103,7 @@ export default function CommonLayout({ children }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-auto no-scrollbar">
           {children}
         </main>
       </div>
