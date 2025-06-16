@@ -42,7 +42,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="relative h-full overflow-y-auto scrollbar-hide p-6 space-y-8">
+    <div className="relative min-h-full p-6 space-y-8">
 
         {/* === Background Glow Effects === */}
         <div className="absolute top-10 left-10 w-80 h-80 bg-[#29AFCD] rounded-full blur-[70px] opacity-50 -z-10"></div>
