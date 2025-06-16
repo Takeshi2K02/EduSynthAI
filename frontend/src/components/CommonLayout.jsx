@@ -103,7 +103,7 @@ export default function CommonLayout({ children }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-hidden">
+        <main className="flex-1 overflow-hidden">
           {children}
         </main>
       </div>

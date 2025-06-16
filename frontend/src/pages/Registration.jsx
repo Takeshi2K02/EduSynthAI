@@ -17,7 +17,7 @@ const Registration = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-secondary to-primary/20 dark:from-dark dark:to-dark">
+    <div className="flex items-center justify-center py-12 w-full">
       <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">Create Account</h1>
         {['username', 'email', 'password'].map((field, i) => (
