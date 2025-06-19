@@ -34,9 +34,15 @@ export default function CommonLayout({ children }) {
         ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="p-4">
-          <Link to="/dashboard" className="text-3xl font-extrabold text-[var(--primary)] tracking-tight">
+          <div
+            onClick={() => {
+              const target = user ? '/dashboard' : '/';
+              if (window.location.pathname !== target) navigate(target);
+            }}
+            className="text-3xl font-extrabold text-[var(--primary)] tracking-tight cursor-pointer"
+          >
             EduSynth AI
-          </Link>
+          </div>
         </div>
         <nav className="px-4 space-y-4 text-sm">
           <Link to="/dashboard" className="block py-2 px-3 rounded hover:bg-[var(--primary)]/10">Dashboard</Link>
@@ -58,7 +64,15 @@ export default function CommonLayout({ children }) {
             <button onClick={() => setOpen(!open)} className="text-[var(--primary)] p-2 rounded-md focus:outline-none">
               {open ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
-            <div className={`text-3xl font-extrabold text-[var(--primary)] tracking-tight leading-none transition-opacity duration-300 ${open ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div
+              onClick={() => {
+                const target = user ? '/dashboard' : '/';
+                if (window.location.pathname !== target) navigate(target);
+              }}
+              className={`text-3xl font-extrabold text-[var(--primary)] tracking-tight leading-none transition-opacity duration-300 cursor-pointer ${
+                open ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
+            >
               EduSynth AI
             </div>
           </div>
