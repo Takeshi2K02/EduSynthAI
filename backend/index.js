@@ -16,7 +16,8 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/progress', require('./routes/progress'));
-app.use('/api/courses', require('./routes/courseRoutes')); // ✅ NEW
+app.use('/api/courses', require('./routes/courseRoutes'));
+app.use('/api/ai',  require('./routes/aiRoutes'));
 
 app.get('/', (req, res) => {
   res.send('EduSynthAI Backend running');
