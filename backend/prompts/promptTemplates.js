@@ -45,6 +45,18 @@ Return them as a plain numbered list, like:
 4. ...
 5. ...
 `,
+
+  moduleContentFromCourse: (courseTitle, courseDescription, moduleTitle) => `
+You're writing educational content for a course.
+
+Course Title: "${courseTitle}"
+Course Description: "${courseDescription}"
+Module Title: "${moduleTitle}"
+
+Write 2–3 informative and engaging paragraphs introducing and explaining this module topic.
+Make it understandable for beginners, but professional.
+Avoid fluff. Be clear and educational.
+`
 };
 
 module.exports = promptTemplates;
