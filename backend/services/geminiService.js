@@ -28,4 +28,41 @@ const generateDescription = async (title) => {
   }
 };
 
-module.exports = { generateDescription };
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+const generateModuleSuggestions = async (title, description) => {
+  const promptTemplates = require('../prompts/promptTemplates');
+  const prompt = promptTemplates.moduleSuggestions(title, description);
+
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }]
+  };
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await axios.post(`${GEMINI_URL}?key=${API_KEY}`, body, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const text = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('No suggestion text returned');
+
+      const modules = text
+        .split('\n')
+        .map(line => line.trim().replace(/^\d+\.\s*/, ''))
+        .filter(Boolean);
+
+      return modules;
+    } catch (err) {
+      if (err.response?.status === 503 && attempt < 2) {
+        console.warn(`Gemini overloaded (attempt ${attempt + 1}). Retrying...`);
+        await delay(1000 * (attempt + 1));
+      } else {
+        console.error('Gemini module suggestion error:', err.response?.data || err.message);
+        throw new Error('Failed to generate module suggestions');
+      }
+    }
+  }
+};
+
+module.exports = { generateDescription, generateModuleSuggestions };
