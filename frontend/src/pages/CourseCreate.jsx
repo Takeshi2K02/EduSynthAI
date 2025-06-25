@@ -3,12 +3,21 @@ import CommonLayout from '../components/CommonLayout';
 import { Image } from 'lucide-react';
 import ModuleEditor from '../components/course/ModuleEditor';
 
+const initialSuggestions = [
+  'Introduction to AI',
+  'Machine Learning Basics',
+  'Deep Learning Overview',
+  'Ethics in AI',
+  'Applications of AI'
+];
+
 const CourseCreate = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [modules, setModules] = useState([]);
+  const [availableSuggestions, setAvailableSuggestions] = useState(initialSuggestions);
 
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
@@ -23,8 +32,8 @@ const CourseCreate = () => {
   };
 
   const handleAddModule = () => {
-    setModules([
-      ...modules,
+    setModules((prev) => [
+      ...prev,
       { title: '', content: '', resources: [], quizzes: [] }
     ]);
   };
@@ -36,23 +45,38 @@ const CourseCreate = () => {
   };
 
   const handleRemoveModule = (index) => {
+    const removedTitle = modules[index].title;
+    if (initialSuggestions.includes(removedTitle) && !availableSuggestions.includes(removedTitle)) {
+      setAvailableSuggestions((prev) => [...prev, removedTitle]);
+    }
+
     const clone = [...modules];
     clone.splice(index, 1);
     setModules(clone);
   };
 
+  const handleUseSuggestion = (title) => {
+    setAvailableSuggestions((prev) => prev.filter((s) => s !== title));
+  };
+
+  const handleReleaseSuggestion = (title) => {
+    if (initialSuggestions.includes(title) && !availableSuggestions.includes(title)) {
+      setAvailableSuggestions((prev) => [...prev, title]);
+    }
+  };
+
+  const canAddModule =
+    modules.length === 0 || modules[modules.length - 1].title.trim() !== '';
+
   return (
     <CommonLayout>
       <div className="max-w-4xl mx-auto mt-12 px-6">
-        {/* Page Heading */}
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">
           Create Course
         </h1>
 
-        {/* Main Form */}
         <div className="p-6 bg-white dark:bg-neutral-900 rounded-2xl shadow-md space-y-6">
           <div className="flex flex-col md:flex-row gap-6 items-stretch h-full">
-            {/* Image Upload */}
             <div
               className="aspect-[7/4] w-full md:w-1/3 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer overflow-hidden"
               onClick={triggerFileInput}
@@ -78,7 +102,6 @@ const CourseCreate = () => {
               />
             </div>
 
-            {/* Title + Description */}
             <div className="flex-1 flex flex-col h-full">
               <div className="flex flex-col gap-1 mb-4">
                 <label className="text-sm font-medium sr-only">Title</label>
@@ -101,7 +124,6 @@ const CourseCreate = () => {
             </div>
           </div>
 
-          {/* Modules */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
               Modules
@@ -113,12 +135,20 @@ const CourseCreate = () => {
                 module={mod}
                 onChange={(updated) => handleUpdateModule(i, updated)}
                 onRemove={() => handleRemoveModule(i)}
+                suggestions={availableSuggestions}
+                onUseSuggestion={handleUseSuggestion}
+                onReleaseSuggestion={handleReleaseSuggestion}
               />
             ))}
 
             <button
               onClick={handleAddModule}
-              className="text-sm px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover"
+              disabled={!canAddModule}
+              className={`text-sm px-4 py-2 rounded ${
+                canAddModule
+                  ? 'bg-primary text-white hover:bg-primary-hover'
+                  : 'bg-gray-300 dark:bg-neutral-700 text-gray-500 cursor-not-allowed'
+              }`}
             >
               + Add Module
             </button>

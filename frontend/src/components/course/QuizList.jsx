@@ -1,117 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
+import QuizConfigPanel from './QuizConfigPanel';
 
-const QuizList = ({ quizzes, onChange }) => {
-  const handleAddQuiz = () => {
-    const newQuiz = {
-      title: '',
-      type: 'single',
-      options: [
-        { text: '', correct: false },
-        { text: '', correct: false },
-      ],
-    };
-    onChange([...quizzes, newQuiz]);
+const QuizList = () => {
+  const [generatedQuiz, setGeneratedQuiz] = useState(null);
+
+  const handleGenerate = (config) => {
+    // For now we just store the config as a placeholder
+    setGeneratedQuiz(config);
   };
 
-  const handleRemoveQuiz = (index) => {
-    const updated = [...quizzes];
-    updated.splice(index, 1);
-    onChange(updated);
-  };
-
-  const updateQuiz = (index, field, value) => {
-    const updated = [...quizzes];
-    updated[index][field] = value;
-    onChange(updated);
-  };
-
-  const updateOption = (quizIndex, optionIndex, field, value) => {
-    const updated = [...quizzes];
-    if (field === 'correct' && updated[quizIndex].type === 'single') {
-      // Uncheck others for single-type quiz
-      updated[quizIndex].options = updated[quizIndex].options.map((opt, i) => ({
-        ...opt,
-        correct: i === optionIndex,
-      }));
-    } else {
-      updated[quizIndex].options[optionIndex][field] = value;
-    }
-    onChange(updated);
-  };
-
-  const addOption = (quizIndex) => {
-    const updated = [...quizzes];
-    updated[quizIndex].options.push({ text: '', correct: false });
-    onChange(updated);
+  const handleDelete = () => {
+    setGeneratedQuiz(null);
   };
 
   return (
-    <div className="space-y-2 mt-4">
-      <h4 className="text-sm font-semibold text-neutral-700 dark:text-white">Quizzes</h4>
-
-      {quizzes.map((quiz, i) => (
-        <div key={i} className="p-4 bg-white dark:bg-neutral-900 rounded border space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-sm text-neutral-800 dark:text-white">
-              Quiz {i + 1}
-            </span>
-            <button
-              onClick={() => handleRemoveQuiz(i)}
-              className="text-red-500 text-xs hover:underline"
-            >
-              Remove
-            </button>
-          </div>
-
-          <input
-            type="text"
-            placeholder="Question"
-            value={quiz.title}
-            onChange={(e) => updateQuiz(i, 'title', e.target.value)}
-            className="w-full px-3 py-2 rounded border bg-white dark:bg-neutral-900"
-          />
-
-          <select
-            value={quiz.type}
-            onChange={(e) => updateQuiz(i, 'type', e.target.value)}
-            className="w-full px-3 py-2 rounded border bg-white dark:bg-neutral-900"
-          >
-            <option value="single">Single Answer</option>
-            <option value="multiple">Multiple Answer</option>
-          </select>
-
-          {quiz.options.map((opt, j) => (
-            <div key={j} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={opt.correct}
-                onChange={(e) => updateOption(i, j, 'correct', e.target.checked)}
-              />
-              <input
-                type="text"
-                placeholder={`Option ${j + 1}`}
-                value={opt.text}
-                onChange={(e) => updateOption(i, j, 'text', e.target.value)}
-                className="flex-1 px-3 py-1 rounded border bg-white dark:bg-neutral-900"
-              />
-            </div>
-          ))}
+    <div className="space-y-4 mt-4">
+      {!generatedQuiz ? (
+        <QuizConfigPanel onGenerate={handleGenerate} />
+      ) : (
+        <div className="p-4 border rounded bg-white dark:bg-neutral-900 space-y-2">
+          <p className="text-sm text-neutral-700 dark:text-white">
+            <strong>Type:</strong> {generatedQuiz.type}
+          </p>
+          <p className="text-sm text-neutral-700 dark:text-white">
+            <strong>Difficulty:</strong> {generatedQuiz.difficulty}
+          </p>
+          <p className="text-sm text-neutral-700 dark:text-white">
+            <strong>Questions:</strong> {generatedQuiz.questionCount}
+          </p>
 
           <button
-            onClick={() => addOption(i)}
-            className="text-xs text-primary hover:underline mt-1"
+            onClick={handleDelete}
+            className="text-red-500 text-sm hover:underline"
           >
-            + Add Option
+            Delete Quiz
           </button>
         </div>
-      ))}
-
-      <button
-        onClick={handleAddQuiz}
-        className="text-sm px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover"
-      >
-        + Add Quiz
-      </button>
+      )}
     </div>
   );
 };
