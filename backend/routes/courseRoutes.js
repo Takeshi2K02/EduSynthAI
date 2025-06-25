@@ -1,37 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const Course = require('../models/Course');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/courses'),
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
-    cb(null, uniqueName);
-  },
-});
-const upload = multer({ storage });
+const courseController = require('../controllers/courseController');
+const protect = require('../middleware/authMiddleware'); // Auth middleware
+const upload = require('../middleware/uploadMiddleware'); // File upload (Multer)
 
-router.post('/', upload.single('thumbnail'), async (req, res) => {
-  try {
-    const { title, description, modules, createdBy } = req.body;
+// Create a new course with thumbnail
+router.post(
+  '/',
+  protect,
+  upload.single('thumbnail'),
+  courseController.createCourse
+);
 
-    const newCourse = new Course({
-      title,
-      description,
-      thumbnailPath: req.file?.path || '',
-      modules: JSON.parse(modules),
-      totalModules: JSON.parse(modules).length,
-      createdBy,
-    });
+// Get all courses
+router.get('/', courseController.getAllCourses);
 
-    await newCourse.save();
-    return res.status(201).json({ message: 'Course created', courseId: newCourse._id });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Course creation failed' });
-  }
-});
+// Get a single course by ID
+router.get('/:id', courseController.getCourseById);
+
+// Delete a course
+router.delete('/:id', protect, courseController.deleteCourse);
 
 module.exports = router;

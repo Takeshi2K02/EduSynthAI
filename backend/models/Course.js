@@ -1,64 +1,48 @@
-// models/Course.js
 const mongoose = require('mongoose');
+
+const OptionSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  isCorrect: { type: Boolean, required: true }
+});
 
 const QuizSchema = new mongoose.Schema({
   type: { type: String, enum: ['single', 'multiple'], required: true },
   question: { type: String, required: true },
-  options: [{ text: String, isCorrect: Boolean }],
-  weight: { type: Number, default: 0 }, // relative to parent module
+  options: [OptionSchema],
+  explanation: { type: String },
+  difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
+  tags: [String],
+  weight: { type: Number, default: 0 },
+  generatedBy: { type: String, enum: ['AI', 'Manual'], default: 'Manual' },
+  createdAt: { type: Date, default: Date.now }
 });
 
 const ResourceSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  description: String,
-  youtubeId: String,
-  videoUrl: String,
-  duration: String, // e.g., "10:34"
-  weight: { type: Number, default: 0 },
-});
-
-const LessonSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  content: { type: String },
-  weight: { type: Number, default: 0 },
+  videoUrl: { type: String, required: true },
+  thumbnail: { type: String },
+  description: { type: String },
+  duration: { type: String },
+  source: { type: String, enum: ['YouTube', 'Vimeo', 'Upload'], default: 'YouTube' },
+  channel: { type: String },
+  publishedAt: { type: Date }
 });
 
 const ModuleSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  summary: String,
-  weight: { type: Number, default: 0 },
-  lessons: [LessonSchema],
+  content: { type: String },
   resources: [ResourceSchema],
-  quizzes: [QuizSchema],
+  quizzes: [QuizSchema]
 });
 
 const CourseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
-  thumbnailPath: { type: String }, // stored on disk
-  status: {
-    type: String,
-    enum: ['Pending', 'Current', 'Completed'],
-    default: 'Pending',
-  },
+  thumbnail: { type: String },
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, enum: ['pending', 'current', 'completed'], default: 'pending' },
   modules: [ModuleSchema],
-  totalModules: { type: Number, default: 0 },
-  totalWeight: { type: Number, default: 1.0 }, // normalized
-  progress: {
-    type: Map,
-    of: Number, // userId -> progress % (0–1)
-    default: {},
-  },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  createdAt: { type: Date, default: Date.now },
-  startedAt: { type: Date },
-  dueAt: { type: Date },
-
-  // Extendability hooks
-  tags: [String],
-  certificateIssuedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  discussionsEnabled: { type: Boolean, default: false },
-  aiGeneratedSummary: { type: String }, // future: AI tutor summary
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Course', CourseSchema);

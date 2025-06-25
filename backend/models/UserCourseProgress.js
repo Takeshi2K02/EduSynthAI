@@ -1,14 +1,24 @@
 const mongoose = require('mongoose');
 
-const UserCourseProgressSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  completedLessons: [{ type: mongoose.Schema.Types.ObjectId }],
-  completedResources: [{ type: mongoose.Schema.Types.ObjectId }],
-  completedQuizzes: [{ type: mongoose.Schema.Types.ObjectId }],
-  updatedAt: { type: Date, default: Date.now }
+const QuizAttemptSchema = new mongoose.Schema({
+  quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
+  score: Number,
+  total: Number,
+  submittedAt: { type: Date, default: Date.now }
 });
 
-UserCourseProgressSchema.index({ userId: 1, courseId: 1 }, { unique: true });
+const ModuleProgressSchema = new mongoose.Schema({
+  moduleId: { type: mongoose.Schema.Types.ObjectId },
+  completed: { type: Boolean, default: false },
+  quizAttempts: [QuizAttemptSchema]
+});
+
+const UserCourseProgressSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+  modules: [ModuleProgressSchema],
+  startedAt: { type: Date, default: Date.now },
+  completedAt: { type: Date }
+});
 
 module.exports = mongoose.model('UserCourseProgress', UserCourseProgressSchema);
