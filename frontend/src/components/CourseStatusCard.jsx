@@ -1,23 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getCourseProgress } from '../api/progress';
 
 const CourseStatusCard = ({
   title,
   description,
   modules,
-  progress,
   status,
   image,
   index,
+  courseId,
+  userId,
 }) => {
+  const [progress, setProgress] = useState(0);
   const progressPercent = Math.round((progress / modules) * 100);
+
   const keyword = encodeURIComponent(title.split(' ').join(','));
-  const fallbackImage = image || `https://source.unsplash.com/featured/400x250?${keyword}&sig=${index}`;
+  const fallbackImage =
+    image || `https://source.unsplash.com/featured/400x250?${keyword}&sig=${index}`;
 
   const statusStyle = {
     Pending: 'bg-yellow-100 text-yellow-800',
     Current: 'bg-blue-100 text-blue-800',
     Completed: 'bg-green-100 text-green-800',
   };
+
+  useEffect(() => {
+    if (!courseId || !userId) return;
+
+    const fetchProgress = async () => {
+      try {
+        const value = await getCourseProgress(courseId, userId);
+        setProgress(Math.round(modules * value));
+      } catch (err) {
+        console.error('Failed to load progress:', err);
+      }
+    };
+
+    fetchProgress();
+  }, [courseId, userId, modules]);
 
   return (
     <div className="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-md w-full max-w-[280px] aspect-[4/5] flex flex-col border border-neutral-200 dark:border-neutral-800">
