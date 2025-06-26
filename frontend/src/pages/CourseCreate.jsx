@@ -7,22 +7,16 @@ import axios from '../api/axiosInstance';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
-const initialSuggestions = [
-  'Introduction to AI',
-  'Machine Learning Basics',
-  'Deep Learning Overview',
-  'Ethics in AI',
-  'Applications of AI'
-];
-
 const CourseCreate = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [modules, setModules] = useState([]);
-  const [availableSuggestions, setAvailableSuggestions] = useState(initialSuggestions);
+  const [availableSuggestions, setAvailableSuggestions] = useState([]);
   const [loadingDesc, setLoadingDesc] = useState(false);
+  const [loadingModules, setLoadingModules] = useState(false);
+  const [modulesSuggested, setModulesSuggested] = useState(false);
 
   const token = useSelector((state) => state.auth.user?.token);
 
@@ -57,7 +51,28 @@ const CourseCreate = () => {
     }
   };
 
-  const handleAddModule = () => {
+  const generateModulesOnce = async () => {
+    if (!modulesSuggested && title.trim() && description.trim()) {
+      try {
+        setLoadingModules(true);
+        const res = await axios.post(
+          '/api/ai/generate-modules',
+          { title, description },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setAvailableSuggestions(res.data.modules || []);
+        setModulesSuggested(true);
+        toast.success('AI module suggestions loaded');
+      } catch (err) {
+        toast.error('Failed to generate module suggestions');
+      } finally {
+        setLoadingModules(false);
+      }
+    }
+  };
+
+  const handleAddModule = async () => {
+    await generateModulesOnce();
     setModules((prev) => [
       ...prev,
       { title: '', content: '', resources: [], quizzes: [] }
@@ -65,14 +80,16 @@ const CourseCreate = () => {
   };
 
   const handleUpdateModule = (index, updated) => {
-    const clone = [...modules];
-    clone[index] = updated;
-    setModules(clone);
+    setModules((prev) => {
+      const next = [...prev];
+      next[index] = JSON.parse(JSON.stringify(updated)); // ✅ Deep clone
+      return next;
+    });
   };
 
   const handleRemoveModule = (index) => {
     const removedTitle = modules[index].title;
-    if (initialSuggestions.includes(removedTitle) && !availableSuggestions.includes(removedTitle)) {
+    if (removedTitle && !availableSuggestions.includes(removedTitle)) {
       setAvailableSuggestions((prev) => [...prev, removedTitle]);
     }
 
@@ -86,13 +103,15 @@ const CourseCreate = () => {
   };
 
   const handleReleaseSuggestion = (title) => {
-    if (initialSuggestions.includes(title) && !availableSuggestions.includes(title)) {
+    if (title && !availableSuggestions.includes(title)) {
       setAvailableSuggestions((prev) => [...prev, title]);
     }
   };
 
   const canAddModule =
-    modules.length === 0 || modules[modules.length - 1].title.trim() !== '';
+    title.trim() !== '' &&
+    description.trim() !== '' &&
+    (modules.length === 0 || modules[modules.length - 1].title.trim() !== '');
 
   return (
     <CommonLayout>
@@ -128,9 +147,8 @@ const CourseCreate = () => {
               />
             </div>
 
-            <div className="flex-1 flex flex-col h-full">
+            <div className="flex-1 flex flex-col h-full relative">
               <div className="flex flex-col gap-1 mb-4">
-                <label className="text-sm font-medium sr-only">Title</label>
                 <input
                   type="text"
                   placeholder="Course Title"
@@ -140,19 +158,16 @@ const CourseCreate = () => {
                 />
               </div>
 
-              <div className="relative w-full">
-                <textarea
-                  placeholder="Course description"
-                  className="w-full px-4 pt-3 pb-10 rounded border bg-neutral-100 dark:bg-neutral-800 resize-none flex-1"
-                  style={{ minHeight: '0' }}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-                <SparkAIButton
-                  onClick={handleGenerateDescription}
-                  loading={loadingDesc}
-                />
-              </div>
+              <textarea
+                placeholder="Course description"
+                className="w-full px-4 pt-3 pb-10 rounded border bg-neutral-100 dark:bg-neutral-800 resize-none flex-1"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <SparkAIButton
+                onClick={handleGenerateDescription}
+                loading={loadingDesc}
+              />
             </div>
           </div>
 
@@ -164,25 +179,29 @@ const CourseCreate = () => {
             {modules.map((mod, i) => (
               <ModuleEditor
                 key={i}
+                index={i}
                 module={mod}
                 onChange={(updated) => handleUpdateModule(i, updated)}
                 onRemove={() => handleRemoveModule(i)}
                 suggestions={availableSuggestions}
                 onUseSuggestion={handleUseSuggestion}
                 onReleaseSuggestion={handleReleaseSuggestion}
+                courseTitle={title}
+                courseDescription={description}
+                token={token}
               />
             ))}
 
             <button
               onClick={handleAddModule}
-              disabled={!canAddModule}
+              disabled={!canAddModule || loadingModules}
               className={`text-sm px-4 py-2 rounded ${
-                canAddModule
+                canAddModule && !loadingModules
                   ? 'bg-primary text-white hover:bg-primary-hover'
                   : 'bg-gray-300 dark:bg-neutral-700 text-gray-500 cursor-not-allowed'
               }`}
             >
-              + Add Module
+              {loadingModules ? 'Loading AI...' : '+ Add Module'}
             </button>
           </div>
         </div>
