@@ -1,4 +1,4 @@
-const { generateDescription, generateModuleSuggestions, generateModuleContent  } = require('../services/geminiService');
+const { generateDescription, generateModuleSuggestions, generateModuleContent, generateQuizFromContent } = require('../services/geminiService');
 
 exports.generateCourseDescription = async (req, res) => {
   const { title } = req.body;
@@ -42,5 +42,20 @@ exports.generateModuleContent = async (req, res) => {
     res.json({ content });
   } catch (err) {
     res.status(500).json({ error: 'Failed to generate module content' });
+  }
+};
+
+exports.generateQuiz = async (req, res) => {
+  const { content, type = 'single', difficulty = 'medium', count = 3 } = req.body;
+
+  if (!content || !type || !difficulty) {
+    return res.status(400).json({ error: 'Missing required fields: content, type, or difficulty' });
+  }
+
+  try {
+    const quiz = await generateQuizFromContent(content, type, difficulty, count);
+    res.json({ quiz });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to generate quiz' });
   }
 };
