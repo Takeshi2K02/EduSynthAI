@@ -1,9 +1,13 @@
 const axios = require('axios');
+require('dotenv').config();
 const parseGeminiQuizOutput = require('../utils/parseGeminiQuizOutput');
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 const API_KEY = process.env.GEMINI_API_KEY;
 
 const promptTemplates = require('../prompts/promptTemplates');
+
+// ⚠️ Debug-only: Log API key
+console.log('🔑 Gemini API Key:', API_KEY);
 
 const generateDescription = async (title) => {
   const prompt = promptTemplates.courseDescription(title);
@@ -100,7 +104,7 @@ const generateQuizFromContent = async (content, type, difficulty, count = 3) => 
     const text = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('No quiz text returned');
 
-    // ✅ Add this line to inspect the raw Gemini response
+    // ✅ Inspect Gemini response
     console.log('🧪 Gemini raw quiz response:\n', text);
 
     return parseGeminiQuizOutput(text);
@@ -109,7 +113,6 @@ const generateQuizFromContent = async (content, type, difficulty, count = 3) => 
     throw new Error('Failed to generate quiz');
   }
 };
-
 
 module.exports = {
   generateDescription,

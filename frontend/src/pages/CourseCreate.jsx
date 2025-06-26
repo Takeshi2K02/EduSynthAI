@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import CommonLayout from '../components/CommonLayout';
 import { Image } from 'lucide-react';
 import ModuleEditor from '../components/course/ModuleEditor';
+import SparkAIButton from '../components/SparkAIButton';
+import axios from '../api/axiosInstance';
+import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
 const initialSuggestions = [
   'Introduction to AI',
@@ -18,6 +22,9 @@ const CourseCreate = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [modules, setModules] = useState([]);
   const [availableSuggestions, setAvailableSuggestions] = useState(initialSuggestions);
+  const [loadingDesc, setLoadingDesc] = useState(false);
+
+  const token = useSelector((state) => state.auth.user?.token);
 
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
@@ -29,6 +36,25 @@ const CourseCreate = () => {
 
   const triggerFileInput = () => {
     document.getElementById('thumbnail-upload').click();
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!title.trim()) {
+      return toast.error('Please enter a course title first');
+    }
+    setLoadingDesc(true);
+    try {
+      const res = await axios.post(
+        '/api/ai/generate-description',
+        { title },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setDescription(res.data.description);
+    } catch (err) {
+      toast.error('Failed to generate description');
+    } finally {
+      setLoadingDesc(false);
+    }
   };
 
   const handleAddModule = () => {
@@ -114,13 +140,19 @@ const CourseCreate = () => {
                 />
               </div>
 
-              <textarea
-                placeholder="Course description"
-                className="w-full px-4 pt-3 pb-10 rounded border bg-neutral-100 dark:bg-neutral-800 resize-none flex-1"
-                style={{ minHeight: '0' }}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
+              <div className="relative w-full">
+                <textarea
+                  placeholder="Course description"
+                  className="w-full px-4 pt-3 pb-10 rounded border bg-neutral-100 dark:bg-neutral-800 resize-none flex-1"
+                  style={{ minHeight: '0' }}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <SparkAIButton
+                  onClick={handleGenerateDescription}
+                  loading={loadingDesc}
+                />
+              </div>
             </div>
           </div>
 
