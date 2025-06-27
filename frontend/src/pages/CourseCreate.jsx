@@ -82,7 +82,7 @@ const CourseCreate = () => {
   const handleUpdateModule = (index, updated) => {
     setModules((prev) => {
       const next = [...prev];
-      next[index] = JSON.parse(JSON.stringify(updated)); // ✅ Deep clone
+      next[index] = JSON.parse(JSON.stringify(updated));
       return next;
     });
   };
@@ -112,6 +112,50 @@ const CourseCreate = () => {
     title.trim() !== '' &&
     description.trim() !== '' &&
     (modules.length === 0 || modules[modules.length - 1].title.trim() !== '');
+
+  // ✅ Course creation handler with sanitization
+  const handleSubmit = async () => {
+    if (!title.trim() || !description.trim()) {
+      return toast.error('Title and description are required');
+    }
+
+    try {
+      const formData = new FormData();
+
+      const sanitizedModules = modules.map(mod => ({
+        ...mod,
+        resources: (mod.resources || []).map(res => ({
+          title: res.title,
+          description: res.description,
+          thumbnail: res.thumbnail,
+          url: res.url || res.videoUrl,
+          duration: typeof res.duration === 'string'
+            ? res.duration.split(':').reduce((acc, time) => 60 * acc + +time, 0)
+            : res.duration
+        }))
+      }));
+
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('modules', JSON.stringify(sanitizedModules));
+      if (thumbnailFile) {
+        formData.append('thumbnail', thumbnailFile);
+      }
+
+      await axios.post('/api/courses', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      toast.success('Course created successfully');
+      // Optionally reset form or navigate
+    } catch (err) {
+      console.error('Course create error:', err);
+      toast.error('Failed to create course');
+    }
+  };
 
   return (
     <CommonLayout>
@@ -202,6 +246,14 @@ const CourseCreate = () => {
               }`}
             >
               {loadingModules ? 'Loading AI...' : '+ Add Module'}
+            </button>
+
+            {/* ✅ Submit Button */}
+            <button
+              onClick={handleSubmit}
+              className="w-full mt-6 py-3 rounded bg-green-600 text-white hover:bg-green-700"
+            >
+              🚀 Create Course
             </button>
           </div>
         </div>
