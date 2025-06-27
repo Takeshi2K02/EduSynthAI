@@ -18,6 +18,7 @@ const ModuleEditor = ({
 }) => {
   const prevTitleRef = useRef(module.title);
   const [localContent, setLocalContent] = useState(module.content || '');
+  const [suggestedVideos, setSuggestedVideos] = useState([]);
 
   const handleChange = (field, value) => {
     const updated = { ...module, [field]: value };
@@ -27,14 +28,12 @@ const ModuleEditor = ({
     onChange(updated);
   };
 
-  // Sync localContent when module.content updates externally
   useEffect(() => {
-    setLocalContent(module.content || '');
-  }, [module.content]);
-
-  useEffect(() => {
-    console.log(`🧠 Module ${index} content updated:`, module.content);
-  }, [module.content]);
+    if (!localContent && module.content) {
+      setLocalContent(module.content);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSuggestionClick = (newTitle) => {
     const prevTitle = module.title;
@@ -64,6 +63,17 @@ const ModuleEditor = ({
 
     handleChange('title', '');
     prevTitleRef.current = '';
+  };
+
+  const fetchSuggestedVideos = async (topic) => {
+    try {
+      const res = await axios.get('/api/youtube/search', {
+        params: { q: topic }
+      });
+      setSuggestedVideos(res.data);
+    } catch (err) {
+      console.error('Failed to auto-fetch videos:', err);
+    }
   };
 
   return (
@@ -167,14 +177,13 @@ const ModuleEditor = ({
                     { headers: { Authorization: `Bearer ${token}` } }
                   );
 
-                  console.log('✅ AI Response:', res.data);
-
                   const result =
                     typeof res.data === 'string'
                       ? res.data
                       : res.data.content || '';
 
                   handleChange('content', result);
+                  await fetchSuggestedVideos(module.title);
                 } catch (err) {
                   alert('Failed to generate content');
                 } finally {
@@ -196,9 +205,11 @@ const ModuleEditor = ({
         {module.showResources && (
           <ResourceList
             resources={module.resources || []}
-            onChange={(updatedResources) =>
-              handleChange('resources', updatedResources)
-            }
+            onChange={(newResources) => {
+              const updatedModule = { ...module, resources: newResources };
+              onChange(updatedModule);
+            }}
+            initialSuggestions={suggestedVideos}
           />
         )}
       </div>
@@ -212,7 +223,8 @@ const ModuleEditor = ({
         </button>
         {module.showQuizzes && (
           <QuizList
-            quizzes={module.quizzes || []}
+            content={localContent}
+            token={token}
             onChange={(updatedQuizzes) =>
               handleChange('quizzes', updatedQuizzes)
             }

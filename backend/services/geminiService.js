@@ -90,6 +90,7 @@ const generateModuleContent = async (courseTitle, courseDescription, moduleTitle
 };
 
 const generateQuizFromContent = async (content, type, difficulty, count = 3) => {
+  console.log('📥 Quiz input content:\n', content);
   const prompt = promptTemplates.quizFromContent(content, type, difficulty, count);
 
   const body = {

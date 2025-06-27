@@ -46,7 +46,7 @@ export default function CommonLayout({ children }) {
         </div>
         <nav className="px-4 space-y-4 text-sm">
           <Link to="/dashboard" className="block py-2 px-3 rounded hover:bg-[var(--primary)]/10">Dashboard</Link>
-          <Link to="/quiz" className="block py-2 px-3 rounded hover:bg-[var(--primary)]/10">Quiz</Link>
+          <Link to="/create-course" className="block py-2 px-3 rounded hover:bg-[var(--primary)]/10">Create Course</Link>
           <p className="mt-6 text-xs uppercase text-[var(--text-muted)]">Filters</p>
           {['All', 'Recent', 'Popular', 'Trending'].map(item => (
             <a key={item} href="#" className="block py-2 px-3 rounded hover:bg-[var(--primary)]/10">

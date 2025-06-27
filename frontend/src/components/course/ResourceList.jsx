@@ -1,31 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SuggestedVideos from './SuggestedVideos';
 import SelectedVideos from './SelectedVideos';
+import axios from '../../api/axiosInstance';
 
-const dummySuggested = [
-  {
-    videoUrl: 'https://www.youtube.com/watch?v=abcd1234',
-    title: 'Intro to AI',
-    description: 'A beginner guide to artificial intelligence.',
-    thumbnail: 'https://img.youtube.com/vi/abcd1234/hqdefault.jpg',
-    duration: '12:34',
-  },
-  {
-    videoUrl: 'https://www.youtube.com/watch?v=wxyz5678',
-    title: 'Machine Learning Basics',
-    description: 'Understanding how machines learn from data.',
-    thumbnail: 'https://img.youtube.com/vi/wxyz5678/hqdefault.jpg',
-    duration: '09:20',
-  }
-];
-
-const ResourceList = ({ resources, onChange }) => {
+const ResourceList = ({ resources, onChange, initialSuggestions = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [suggested, setSuggested] = useState(dummySuggested);
+  const [suggested, setSuggested] = useState([]);
   const [selected, setSelected] = useState(resources);
 
+  // Load initial suggestions once (on mount)
+  useEffect(() => {
+    setSuggested(initialSuggestions);
+  }, [initialSuggestions]);
+
   const handleSelectVideo = (video) => {
-    if (!selected.find(v => v.videoUrl === video.videoUrl)) {
+    if (!selected.find(v => v.url === video.url)) {
       const updated = [...selected, video];
       setSelected(updated);
       onChange(updated);
@@ -33,16 +22,28 @@ const ResourceList = ({ resources, onChange }) => {
   };
 
   const handleRemoveVideo = (videoUrl) => {
-    const updated = selected.filter(v => v.videoUrl !== videoUrl);
+    const updated = selected.filter(v => v.url !== videoUrl);
     setSelected(updated);
     onChange(updated);
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    // In future step: fetch videos via YouTube API here
-    // For now, we’ll just simulate it using the same dummySuggested
-    setSuggested(dummySuggested);
+  const handleSearchChange = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (!value.trim()) {
+      setSuggested([]);
+      return;
+    }
+
+    try {
+      const res = await axios.get('/api/youtube/search', {
+        params: { q: value }
+      });
+      setSuggested(res.data);
+    } catch (err) {
+      console.error('YouTube fetch error:', err);
+    }
   };
 
   return (

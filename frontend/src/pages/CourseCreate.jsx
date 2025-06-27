@@ -5,7 +5,8 @@ import ModuleEditor from '../components/course/ModuleEditor';
 import SparkAIButton from '../components/SparkAIButton';
 import axios from '../api/axiosInstance';
 import { useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 const CourseCreate = () => {
   const [title, setTitle] = useState('');
@@ -17,6 +18,7 @@ const CourseCreate = () => {
   const [loadingDesc, setLoadingDesc] = useState(false);
   const [loadingModules, setLoadingModules] = useState(false);
   const [modulesSuggested, setModulesSuggested] = useState(false);
+  const navigate = useNavigate();
 
   const token = useSelector((state) => state.auth.user?.token);
 
@@ -82,7 +84,7 @@ const CourseCreate = () => {
   const handleUpdateModule = (index, updated) => {
     setModules((prev) => {
       const next = [...prev];
-      next[index] = JSON.parse(JSON.stringify(updated)); // ✅ Deep clone
+      next[index] = JSON.parse(JSON.stringify(updated));
       return next;
     });
   };
@@ -113,8 +115,59 @@ const CourseCreate = () => {
     description.trim() !== '' &&
     (modules.length === 0 || modules[modules.length - 1].title.trim() !== '');
 
+  // ✅ Course creation handler with sanitization
+  const handleSubmit = async () => {
+    if (!title.trim() || !description.trim()) {
+      return toast.error('Title and description are required');
+    }
+
+    try {
+      const formData = new FormData();
+
+      const sanitizedModules = modules.map(mod => ({
+        ...mod,
+        resources: (mod.resources || [])
+          .filter(res => res.videoUrl && typeof res.videoUrl === 'string' && res.videoUrl.trim() !== '')
+          .map(res => ({
+            title: res.title,
+            description: res.description,
+            thumbnail: res.thumbnail,
+            videoUrl: res.videoUrl,
+            duration: typeof res.duration === 'string'
+              ? res.duration.split(':').reduce((acc, time) => 60 * acc + +time, 0)
+              : res.duration
+          }))
+      }));
+
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('modules', JSON.stringify(sanitizedModules));
+      if (thumbnailFile) {
+        formData.append('thumbnail', thumbnailFile);
+      }
+
+      await axios.post('/api/courses', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      toast.success('Course created successfully');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+
+    } catch (err) {
+      console.error('Course create error:', err);
+      toast.error('Failed to create course');
+    }
+  };
+
+
   return (
     <CommonLayout>
+      <Toaster position="top-center" />
       <div className="max-w-4xl mx-auto mt-12 px-6">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">
           Create Course
@@ -202,6 +255,14 @@ const CourseCreate = () => {
               }`}
             >
               {loadingModules ? 'Loading AI...' : '+ Add Module'}
+            </button>
+
+            {/* ✅ Submit Button */}
+            <button
+              onClick={handleSubmit}
+              className="w-full mt-6 py-3 rounded bg-green-600 text-white hover:bg-green-700"
+            >
+              🚀 Create Course
             </button>
           </div>
         </div>
