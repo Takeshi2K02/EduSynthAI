@@ -5,7 +5,8 @@ import ModuleEditor from '../components/course/ModuleEditor';
 import SparkAIButton from '../components/SparkAIButton';
 import axios from '../api/axiosInstance';
 import { useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 const CourseCreate = () => {
   const [title, setTitle] = useState('');
@@ -17,6 +18,7 @@ const CourseCreate = () => {
   const [loadingDesc, setLoadingDesc] = useState(false);
   const [loadingModules, setLoadingModules] = useState(false);
   const [modulesSuggested, setModulesSuggested] = useState(false);
+  const navigate = useNavigate();
 
   const token = useSelector((state) => state.auth.user?.token);
 
@@ -124,15 +126,17 @@ const CourseCreate = () => {
 
       const sanitizedModules = modules.map(mod => ({
         ...mod,
-        resources: (mod.resources || []).map(res => ({
-          title: res.title,
-          description: res.description,
-          thumbnail: res.thumbnail,
-          url: res.url || res.videoUrl,
-          duration: typeof res.duration === 'string'
-            ? res.duration.split(':').reduce((acc, time) => 60 * acc + +time, 0)
-            : res.duration
-        }))
+        resources: (mod.resources || [])
+          .filter(res => res.videoUrl && typeof res.videoUrl === 'string' && res.videoUrl.trim() !== '')
+          .map(res => ({
+            title: res.title,
+            description: res.description,
+            thumbnail: res.thumbnail,
+            videoUrl: res.videoUrl,
+            duration: typeof res.duration === 'string'
+              ? res.duration.split(':').reduce((acc, time) => 60 * acc + +time, 0)
+              : res.duration
+          }))
       }));
 
       formData.append('title', title);
@@ -150,15 +154,20 @@ const CourseCreate = () => {
       });
 
       toast.success('Course created successfully');
-      // Optionally reset form or navigate
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+
     } catch (err) {
       console.error('Course create error:', err);
       toast.error('Failed to create course');
     }
   };
 
+
   return (
     <CommonLayout>
+      <Toaster position="top-center" />
       <div className="max-w-4xl mx-auto mt-12 px-6">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">
           Create Course
