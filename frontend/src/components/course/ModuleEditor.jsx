@@ -28,7 +28,6 @@ const ModuleEditor = ({
     onChange(updated);
   };
 
-  // Sync localContent when module.content updates externally
   useEffect(() => {
     if (!localContent && module.content) {
       setLocalContent(module.content);
@@ -184,8 +183,6 @@ const ModuleEditor = ({
                       : res.data.content || '';
 
                   handleChange('content', result);
-
-                  // 🔁 Auto-fetch suggested videos
                   await fetchSuggestedVideos(module.title);
                 } catch (err) {
                   alert('Failed to generate content');
@@ -226,7 +223,8 @@ const ModuleEditor = ({
         </button>
         {module.showQuizzes && (
           <QuizList
-            quizzes={module.quizzes || []}
+            content={localContent}
+            token={token}
             onChange={(updatedQuizzes) =>
               handleChange('quizzes', updatedQuizzes)
             }

@@ -14,18 +14,23 @@ Generate detailed learning content for a module titled: "${moduleTitle}".
 Include 2–3 paragraphs that introduce, explain, and summarize the topic.
 `,
 
-  quizFromContent: (content, type, difficulty, count) => `
-Generate ${count} ${type === 'multiple' ? 'multiple answer' : 'single answer'} quiz questions based on the following content:
+quizFromContent: (content, type, difficulty, count) => `
+Generate ${count} ${type === 'multiple' ? 'multiple-correct-answer' : 'single-correct-answer'} quiz questions based on the following educational content:
 
-"${content}"
+---
+${content}
+---
 
-Difficulty level: ${difficulty}
+Return your answer as a JSON array. Each quiz question object should include:
 
-Each question should:
-- Include 4 options
-- Mark correct answers
-- Include a 1-line explanation
-- Return as JSON array
+- "question": the full question as a string
+- "type": "single" or "multiple"
+- "options": an array of 4 strings (answer choices)
+- "correctAnswers": an array of indexes (0-based) indicating which options are correct
+- "explanation": a short explanation for the correct answer(s)
+- "difficulty": one of "easy", "medium", or "hard"
+
+Do not include any extra explanation or markdown. Return only the raw JSON array.
 `,
 
   moduleSuggestions: (title, description) => `
