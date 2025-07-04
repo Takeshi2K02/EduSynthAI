@@ -67,7 +67,7 @@ const ModuleEditor = ({
 
   const fetchSuggestedVideos = async (topic) => {
     try {
-      const res = await axios.get('/api/youtube/search', {
+      const res = await axios.get('/youtube/search', {
         params: { q: topic }
       });
       setSuggestedVideos(res.data);
@@ -168,7 +168,7 @@ const ModuleEditor = ({
 
                 try {
                   const res = await axios.post(
-                    '/api/ai/generate-module-content',
+                    '/ai/generate-module-content',
                     {
                       courseTitle,
                       courseDescription,

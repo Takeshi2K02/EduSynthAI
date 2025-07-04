@@ -15,7 +15,7 @@ const QuizList = ({ content, token, onChange }) => {
 
     try {
       const res = await axios.post(
-        '/api/ai/generate-quiz',
+        '/ai/generate-quiz',
         {
           content,
           type: config.type,

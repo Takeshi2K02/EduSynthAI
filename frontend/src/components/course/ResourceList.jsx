@@ -37,7 +37,7 @@ const ResourceList = ({ resources, onChange, initialSuggestions = [] }) => {
     }
 
     try {
-      const res = await axios.get('/api/youtube/search', {
+      const res = await axios.get('/youtube/search', {
         params: { q: value }
       });
       setSuggested(res.data);

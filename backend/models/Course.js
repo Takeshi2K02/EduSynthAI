@@ -31,9 +31,11 @@ const ResourceSchema = new mongoose.Schema({
 const ModuleSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String },
+  weight: { type: Number, required: true },
   resources: [ResourceSchema],
   quizzes: [QuizSchema]
 });
+
 
 const CourseSchema = new mongoose.Schema({
   title: { type: String, required: true },

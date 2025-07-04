@@ -41,7 +41,7 @@ const CourseCreate = () => {
     setLoadingDesc(true);
     try {
       const res = await axios.post(
-        '/api/ai/generate-description',
+        '/ai/generate-description',
         { title },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -58,7 +58,7 @@ const CourseCreate = () => {
       try {
         setLoadingModules(true);
         const res = await axios.post(
-          '/api/ai/generate-modules',
+          '/ai/generate-modules',
           { title, description },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -146,7 +146,7 @@ const CourseCreate = () => {
         formData.append('thumbnail', thumbnailFile);
       }
 
-      await axios.post('/api/courses', formData, {
+      await axios.post('/courses', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

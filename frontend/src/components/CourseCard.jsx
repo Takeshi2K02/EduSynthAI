@@ -1,35 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { getCourseProgress } from '../api/progress';
+import { getCourseProgress } from '../services/courseService'; // 🔄 uses updated service file
 
-const CourseStatusCard = ({
-  title,
-  description,
-  modules,
-  status,
-  image,
-  index,
-  courseId,
-  userId,
+const CourseCard = ({
+  course,
+  status = 'pending',
+  index = 0,
+  userId = null,
 }) => {
   const [progress, setProgress] = useState(0);
+  const modules = course.modules?.length || 0;
   const progressPercent = Math.round((progress / modules) * 100);
 
-  const keyword = encodeURIComponent(title.split(' ').join(','));
-  const fallbackImage =
-    image || `https://source.unsplash.com/featured/400x250?${keyword}&sig=${index}`;
+  const keyword = encodeURIComponent(course.title?.split(' ').join(','));
+  const fallbackImage = course.thumbnail?.startsWith('/uploads')
+  ? `http://localhost:5000${course.thumbnail}`
+  : (course.thumbnail || '/placeholder.jpg');
+
 
   const statusStyle = {
-    Pending: 'bg-yellow-100 text-yellow-800',
-    Current: 'bg-blue-100 text-blue-800',
-    Completed: 'bg-green-100 text-green-800',
+    pending: 'bg-yellow-100 text-yellow-800',
+    current: 'bg-blue-100 text-blue-800',
+    completed: 'bg-green-100 text-green-800',
   };
 
   useEffect(() => {
-    if (!courseId || !userId) return;
+    if (!course._id || !userId || modules === 0) return;
 
     const fetchProgress = async () => {
       try {
-        const value = await getCourseProgress(courseId, userId);
+        const value = await getCourseProgress(course._id, userId);
         setProgress(Math.round(modules * value));
       } catch (err) {
         console.error('Failed to load progress:', err);
@@ -37,7 +36,7 @@ const CourseStatusCard = ({
     };
 
     fetchProgress();
-  }, [courseId, userId, modules]);
+  }, [course._id, userId, modules]);
 
   return (
     <div className="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-md w-full max-w-[280px] aspect-[4/5] flex flex-col border border-neutral-200 dark:border-neutral-800">
@@ -45,13 +44,13 @@ const CourseStatusCard = ({
       <div className="relative">
         <img
           src={fallbackImage}
-          alt={title}
+          alt={course.title}
           className="w-full h-40 object-cover"
         />
         <span
           className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-full ${statusStyle[status]}`}
         >
-          {status}
+          {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
       </div>
 
@@ -59,12 +58,12 @@ const CourseStatusCard = ({
       <div className="flex-1 flex flex-col justify-between p-4 gap-2">
         {/* Title */}
         <h3 className="text-base font-bold text-neutral-900 dark:text-white line-clamp-1">
-          {title}
+          {course.title}
         </h3>
 
         {/* Description */}
         <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-          {description}
+          {course.description?.replace(/[#*_]/g, '')}
         </p>
 
         {/* Progress */}
@@ -84,4 +83,4 @@ const CourseStatusCard = ({
   );
 };
 
-export default CourseStatusCard;
+export default CourseCard;

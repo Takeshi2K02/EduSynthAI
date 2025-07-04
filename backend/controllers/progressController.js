@@ -3,6 +3,7 @@ const Course = require('../models/Course');
 const UserCourseProgress = require('../models/UserCourseProgress');
 const calculateProgress = require('../utils/calculateProgress');
 
+// GET /api/progress/:courseId?userId=...
 const getUserCourseProgress = async (req, res) => {
   try {
     const userId = req.query.userId;
@@ -28,6 +29,7 @@ const getUserCourseProgress = async (req, res) => {
   }
 };
 
+// POST /api/progress/mark-complete
 const markItemComplete = async (req, res) => {
   try {
     const { userId, courseId, itemType, itemId } = req.body;
@@ -63,7 +65,31 @@ const markItemComplete = async (req, res) => {
   }
 };
 
+// GET /api/progress/dashboard
+const getUserDashboardProgress = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const progresses = await UserCourseProgress.find({ user: userId }).lean();
+    const courseIds = progresses.map(p => p.course);
+
+    const courses = await Course.find({ _id: { $in: courseIds } }).lean();
+
+    const result = progresses.map(progressDoc => {
+      const course = courses.find(c => c._id.toString() === progressDoc.course.toString());
+      const progress = calculateProgress(course, progressDoc);
+      return { course, progress };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('Dashboard progress fetch error:', err);
+    res.status(500).json({ error: 'Failed to load dashboard progress' });
+  }
+};
+
 module.exports = {
   getUserCourseProgress,
-  markItemComplete
+  markItemComplete,
+  getUserDashboardProgress
 };

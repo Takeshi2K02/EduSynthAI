@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 const courseController = require('../controllers/courseController');
-const protect = require('../middleware/authMiddleware'); // Auth middleware
-const upload = require('../middleware/uploadMiddleware'); // File upload (Multer)
+const protect = require('../middleware/authMiddleware'); // ✅ Default export, keep as-is
+const upload = require('../middleware/uploadMiddleware');
+
+// ✅ NEW: Get courses grouped by status (pending, current, completed)
+router.get('/grouped', protect, courseController.getGroupedCourses);
 
 // Create a new course with thumbnail
 router.post(
