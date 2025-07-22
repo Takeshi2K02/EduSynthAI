@@ -1,8 +1,12 @@
 import React from 'react';
 
-const ModuleEditor = ({ index, module, onChange, onRemove }) => {
+const ModuleEditor = ({ index, module, onChange, onRemove, suggestions = [] }) => {
   const handleFieldChange = (field, value) => {
     onChange({ ...module, [field]: value });
+  };
+
+  const handleUseSuggestion = (suggestion) => {
+    handleFieldChange('title', suggestion);
   };
 
   return (
@@ -26,6 +30,20 @@ const ModuleEditor = ({ index, module, onChange, onRemove }) => {
           placeholder="Module title"
           className="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
         />
+
+        {suggestions.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {suggestions.map((sugg, i) => (
+              <button
+                key={i}
+                onClick={() => handleUseSuggestion(sugg)}
+                className="bg-gray-700 text-sm text-gray-100 px-3 py-1 rounded-full hover:bg-gray-600 transition"
+              >
+                {sugg}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div>

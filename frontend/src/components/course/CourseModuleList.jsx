@@ -7,6 +7,9 @@ const CourseModuleList = ({
   onUpdate,
   onRemove,
   canAdd,
+  courseTitle,
+  courseDescription,
+  suggestions = [],
 }) => {
   return (
     <div className="space-y-4">
@@ -18,8 +21,7 @@ const CourseModuleList = ({
           className={`px-3 py-1.5 rounded-md transition font-medium
             ${canAdd
               ? 'bg-primary text-white hover:bg-primary-hover'
-              : 'bg-gray-600 text-gray-300 cursor-not-allowed'}
-          `}
+              : 'bg-gray-600 text-gray-300 cursor-not-allowed'}`}
         >
           Add Module
         </button>
@@ -36,6 +38,9 @@ const CourseModuleList = ({
           module={mod}
           onChange={(updated) => onUpdate(idx, updated)}
           onRemove={() => onRemove(idx)}
+          courseTitle={courseTitle}
+          courseDescription={courseDescription}
+          suggestions={suggestions}
         />
       ))}
     </div>
