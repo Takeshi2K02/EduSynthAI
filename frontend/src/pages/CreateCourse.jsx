@@ -12,7 +12,6 @@ const CreateCourse = () => {
   const [suggestionPool, setSuggestionPool] = useState([]);
   const [usedSuggestions, setUsedSuggestions] = useState([]);
 
-  // Fetch module suggestions when both title and description are ready
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!title.trim() || !description.trim()) return;
@@ -24,8 +23,8 @@ const CreateCourse = () => {
         });
 
         setSuggestionPool(res.data.modules || []);
-        setUsedSuggestions([]); // Reset used list when new title/desc provided
-        setModules([]); // Reset modules when course metadata changes
+        setUsedSuggestions([]);
+        setModules([]);
       } catch (err) {
         console.error('❌ Failed to fetch module suggestions:', err?.response?.data || err.message);
       }
@@ -87,6 +86,30 @@ const CreateCourse = () => {
     setUsedSuggestions(updatedUsed);
   };
 
+  const handleSubmit = async () => {
+  try {
+    const payload = {
+      title,
+      description,
+      modules: JSON.stringify(
+        modules.map(({ title, content, quizzes, resources }) => ({
+          title,
+          content,
+          quizzes,
+          resources
+        }))
+      )
+    };
+
+    const res = await axios.post('/courses', payload);
+    alert('✅ Course created successfully!');
+    console.log('Course saved:', res.data);
+  } catch (err) {
+    console.error('❌ Submit Error:', err?.response?.data || err.message);
+    alert('Failed to submit course.');
+  }
+};
+
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Create a New Course</h1>
@@ -110,6 +133,15 @@ const CreateCourse = () => {
         courseDescription={description}
         suggestions={suggestionPool.filter(s => !usedSuggestions.includes(s))}
       />
+
+      <div className="pt-4">
+        <button
+          onClick={handleSubmit}
+          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+        >
+          Submit Course
+        </button>
+      </div>
     </div>
   );
 };
