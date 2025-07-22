@@ -24,3 +24,14 @@ export const getCourseProgress = async (courseId, userId) => {
     return 0; // fallback to 0%
   }
 };
+
+// ✅ Fetch full course details by ID
+export const getCourseById = async (courseId) => {
+  try {
+    const res = await api.get(`/courses/${courseId}`);
+    return res.data;
+  } catch (err) {
+    console.error(`Failed to load course ${courseId}:`, err);
+    throw err;
+  }
+};

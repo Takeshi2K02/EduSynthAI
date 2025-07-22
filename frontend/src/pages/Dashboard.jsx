@@ -8,7 +8,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 🔐 Grab userId from localStorage
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?._id;
 
@@ -33,7 +32,7 @@ const Dashboard = () => {
       {courses.length === 0 ? (
         <p className="text-neutral-400 dark:text-neutral-500">No courses in this category.</p>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {courses.map((course, index) => (
             <CourseCard
               key={course._id}
@@ -51,7 +50,6 @@ const Dashboard = () => {
   return (
     <CommonLayout>
       <div className="relative min-h-full p-6 space-y-8">
-        {/* === Background Glow Effects === */}
         <div className="absolute top-10 left-10 w-80 h-80 bg-[#29AFCD] rounded-full blur-[70px] opacity-50 -z-10"></div>
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-[90px] opacity-40 -z-10"></div>
 

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Routes, Route, useParams } from 'react-router-dom';
 
 import PrivateRoute from './components/PrivateRoute';
 
@@ -9,8 +9,24 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
-import CourseCreate from './pages/CourseCreate';
+import CreateCourse from './pages/CreateCourse';
+import CourseDetail from './pages/CourseDetail';
+import { getCourseById } from './services/courseService'; // ✅ Make sure this exists
 
+// ✅ Wrapper that fetches course and passes it to CourseDetail
+const CourseDetailWrapper = () => {
+  const { id } = useParams();
+  const [course, setCourse] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  useEffect(() => {
+    getCourseById(id).then(setCourse).catch(console.error);
+  }, [id]);
+
+  if (!course) return <p className="p-4">Loading course...</p>;
+
+  return <CourseDetail course={course} userId={user?._id} />;
+};
 
 const App = () => {
   useEffect(() => {
@@ -33,11 +49,17 @@ const App = () => {
           </PrivateRoute>
         }
       />
+      <Route path="/create-course" element={
+          <PrivateRoute>
+            <CreateCourse />
+          </PrivateRoute>
+        } 
+      />
       <Route
-        path="/create-course"
+        path="/courses/:id"
         element={
           <PrivateRoute>
-            <CourseCreate />
+            <CourseDetailWrapper />
           </PrivateRoute>
         }
       />
