@@ -41,6 +41,18 @@ const CreateCourse = () => {
         onSparkClick={handleGenerateDescription}
         loading={descLoading}
       />
+
+      <div>
+        <button
+          disabled={!title.trim() || !description.trim()}
+          className={`px-4 py-2 rounded-md font-medium transition 
+            ${title.trim() && description.trim()
+              ? 'bg-primary text-white hover:bg-primary-hover'
+              : 'bg-gray-600 text-gray-400 cursor-not-allowed'}`}
+        >
+          Add Module
+        </button>
+      </div>
     </div>
   );
 };
