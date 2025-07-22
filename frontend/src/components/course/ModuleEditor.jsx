@@ -1,12 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from '../../api/axiosInstance';
+import SparkAIButton from './SparkAIButton';
 
-const ModuleEditor = ({ index, module, onChange, onRemove, suggestions = [] }) => {
+const ModuleEditor = ({
+  index,
+  module,
+  onChange,
+  onRemove,
+  suggestions = [],
+  courseTitle,
+  courseDescription,
+}) => {
+  const [loadingContent, setLoadingContent] = useState(false);
+
   const handleFieldChange = (field, value) => {
     onChange({ ...module, [field]: value });
   };
 
   const handleUseSuggestion = (suggestion) => {
     handleFieldChange('title', suggestion);
+  };
+
+  const handleGenerateContent = async () => {
+    if (!courseTitle || !courseDescription || !module.title) {
+      return alert('Course title, description, and module title are required');
+    }
+
+    setLoadingContent(true);
+    try {
+      const res = await axios.post('/ai/generate-module-content', {
+        courseTitle,
+        courseDescription,
+        moduleTitle: module.title,
+      });
+
+      handleFieldChange('content', res.data.content || '');
+    } catch (err) {
+      console.error('❌ Failed to generate module content:', err?.response?.data || err.message);
+      alert('Failed to generate content.');
+    } finally {
+      setLoadingContent(false);
+    }
   };
 
   return (
@@ -46,15 +80,16 @@ const ModuleEditor = ({ index, module, onChange, onRemove, suggestions = [] }) =
         )}
       </div>
 
-      <div>
+      <div className="relative">
         <label className="block text-sm mb-1 text-gray-300">Content</label>
         <textarea
           value={module.content}
           onChange={(e) => handleFieldChange('content', e.target.value)}
           placeholder="Module content..."
           rows={4}
-          className="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 resize-none"
+          className="w-full px-3 py-2 pr-10 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 resize-none"
         />
+        <SparkAIButton onClick={handleGenerateContent} loading={loadingContent} />
       </div>
     </div>
   );
