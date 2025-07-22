@@ -13,6 +13,7 @@ const ModuleEditor = ({
 }) => {
   const [loadingContent, setLoadingContent] = useState(false);
   const [videoSuggestions, setVideoSuggestions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleFieldChange = (field, value) => {
     onChange({ ...module, [field]: value });
@@ -45,9 +46,30 @@ const ModuleEditor = ({
   };
 
   const handleAddResource = (video) => {
-    const alreadyExists = module.resources?.some(r => r.url === video.url);
-    if (!alreadyExists) {
-      handleFieldChange('resources', [...(module.resources || []), video]);
+  const alreadyExists = module.resources?.some(r => r.videoUrl === video.url);
+  if (!alreadyExists) {
+    const cleanVideo = {
+      title: video.title,
+      videoUrl: video.url, // ✅ match schema
+      thumbnail: video.thumbnail,
+      source: 'YouTube', // optional, but sets correctly
+    };
+
+    handleFieldChange('resources', [...(module.resources || []), cleanVideo]);
+  }
+};
+
+
+
+  const handleManualSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    try {
+      const res = await axios.get(`/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=5`);
+      setVideoSuggestions(res.data || []);
+    } catch (err) {
+      console.error('❌ Manual YouTube Search Error:', err?.response?.data || err.message);
+      alert('Failed to fetch results.');
     }
   };
 
@@ -92,7 +114,6 @@ const ModuleEditor = ({
           placeholder="Module title"
           className="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
         />
-
         {suggestions.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {suggestions.map((sugg, i) => (
@@ -121,10 +142,30 @@ const ModuleEditor = ({
         <SparkAIButton onClick={handleGenerateContent} loading={loadingContent} />
       </div>
 
-      {/* Suggested Videos */}
+      {/* Manual YouTube Search */}
+      <div className="mt-3">
+        <label className="block text-sm font-medium text-gray-300 mb-1">Search YouTube Videos</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for videos..."
+            className="flex-1 px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+          />
+          <button
+            onClick={handleManualSearch}
+            className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 text-sm"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+
+      {/* Suggested or Searched Videos */}
       {videoSuggestions.length > 0 && (
         <div className="mt-3">
-          <label className="block text-sm font-medium text-gray-300 mb-2">Suggested YouTube Videos</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">YouTube Videos</label>
           <div className="grid grid-cols-1 gap-3">
             {videoSuggestions.map((video, idx) => {
               if (isAdded(video)) return null;
@@ -158,41 +199,42 @@ const ModuleEditor = ({
           </div>
         </div>
       )}
+
       {/* Selected Resources */}
-        {module.resources?.length > 0 && (
+      {module.resources?.length > 0 && (
         <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Selected Resources</label>
-            <div className="grid grid-cols-1 gap-3">
+          <label className="block text-sm font-medium text-gray-300 mb-2">Selected Resources</label>
+          <div className="grid grid-cols-1 gap-3">
             {module.resources.map((res, idx) => (
-                <div key={idx} className="flex items-center gap-4 p-2 rounded-md bg-gray-800 border border-gray-700">
+              <div key={idx} className="flex items-center gap-4 p-2 rounded-md bg-gray-800 border border-gray-700">
                 <img src={res.thumbnail} alt={res.title} className="w-20 h-12 object-cover rounded" />
                 <div className="flex-1">
-                    <p className="text-sm text-white font-medium line-clamp-2">{res.title}</p>
-                    <a
+                  <p className="text-sm text-white font-medium line-clamp-2">{res.title}</p>
+                  <a
                     href={res.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-blue-400 hover:underline"
-                    >
+                  >
                     View on YouTube
-                    </a>
+                  </a>
                 </div>
                 <button
-                    onClick={() =>
+                  onClick={() =>
                     handleFieldChange(
-                        'resources',
-                        module.resources.filter((_, i) => i !== idx)
+                      'resources',
+                      module.resources.filter((_, i) => i !== idx)
                     )
-                    }
-                    className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-500"
+                  }
+                  className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-500"
                 >
-                    Remove
+                  Remove
                 </button>
-                </div>
+              </div>
             ))}
-            </div>
+          </div>
         </div>
-        )}
+      )}
     </div>
   );
 };

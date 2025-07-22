@@ -96,19 +96,29 @@ const CreateCourse = () => {
           title,
           content,
           quizzes,
-          resources
+          resources: (resources || []).map(r => ({
+            title: r.title,
+            videoUrl: r.videoUrl || r.url,         // ✅ match schema
+            thumbnail: r.thumbnail,  // ✅ optional
+            source: 'YouTube'        // ✅ optional but valid
+          }))
         }))
       )
     };
 
+    // 📦 Log payload before sending
+    console.log('📤 Submitting payload:', JSON.stringify(payload, null, 2));
+
     const res = await axios.post('/courses', payload);
     alert('✅ Course created successfully!');
-    console.log('Course saved:', res.data);
+    console.log('✅ Saved response:', res.data);
   } catch (err) {
     console.error('❌ Submit Error:', err?.response?.data || err.message);
-    alert('Failed to submit course.');
+    alert(err?.response?.data?.error || 'Failed to submit course.');
   }
 };
+
+
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
