@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../../api/axiosInstance';
 import SparkAIButton from './SparkAIButton';
 
@@ -12,6 +12,7 @@ const ModuleEditor = ({
   courseDescription,
 }) => {
   const [loadingContent, setLoadingContent] = useState(false);
+  const [videoSuggestions, setVideoSuggestions] = useState([]);
 
   const handleFieldChange = (field, value) => {
     onChange({ ...module, [field]: value });
@@ -43,6 +44,32 @@ const ModuleEditor = ({
     }
   };
 
+  const handleAddResource = (video) => {
+    const alreadyExists = module.resources?.some(r => r.url === video.url);
+    if (!alreadyExists) {
+      handleFieldChange('resources', [...(module.resources || []), video]);
+    }
+  };
+
+  useEffect(() => {
+    const fetchYouTubeSuggestions = async () => {
+      if (!module.content?.trim()) return;
+
+      try {
+        const q = `${courseTitle} ${module.title} ${module.content.slice(0, 100)}`;
+        const res = await axios.get(`/youtube/search?q=${encodeURIComponent(q)}&maxResults=5`);
+        setVideoSuggestions(res.data || []);
+      } catch (err) {
+        console.error('❌ YouTube Fetch Error:', err?.response?.data || err.message);
+      }
+    };
+
+    fetchYouTubeSuggestions();
+  }, [module.content]);
+
+  const isAdded = (video) =>
+    module.resources?.some((r) => r.url === video.url);
+
   return (
     <div className="p-4 rounded-md border border-gray-700 bg-gray-800 space-y-3">
       <div className="flex justify-between items-center">
@@ -55,6 +82,7 @@ const ModuleEditor = ({
         </button>
       </div>
 
+      {/* Title */}
       <div>
         <label className="block text-sm mb-1 text-gray-300">Title</label>
         <input
@@ -80,6 +108,7 @@ const ModuleEditor = ({
         )}
       </div>
 
+      {/* Content + Spark AI */}
       <div className="relative">
         <label className="block text-sm mb-1 text-gray-300">Content</label>
         <textarea
@@ -91,6 +120,79 @@ const ModuleEditor = ({
         />
         <SparkAIButton onClick={handleGenerateContent} loading={loadingContent} />
       </div>
+
+      {/* Suggested Videos */}
+      {videoSuggestions.length > 0 && (
+        <div className="mt-3">
+          <label className="block text-sm font-medium text-gray-300 mb-2">Suggested YouTube Videos</label>
+          <div className="grid grid-cols-1 gap-3">
+            {videoSuggestions.map((video, idx) => {
+              if (isAdded(video)) return null;
+              return (
+                <div key={idx} className="flex items-center gap-4 p-2 rounded-md bg-gray-700">
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-20 h-12 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm text-white font-medium line-clamp-2">{video.title}</p>
+                    <a
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-400 hover:underline"
+                    >
+                      View on YouTube
+                    </a>
+                  </div>
+                  <button
+                    onClick={() => handleAddResource(video)}
+                    className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-500"
+                  >
+                    Add
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {/* Selected Resources */}
+        {module.resources?.length > 0 && (
+        <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-300 mb-2">Selected Resources</label>
+            <div className="grid grid-cols-1 gap-3">
+            {module.resources.map((res, idx) => (
+                <div key={idx} className="flex items-center gap-4 p-2 rounded-md bg-gray-800 border border-gray-700">
+                <img src={res.thumbnail} alt={res.title} className="w-20 h-12 object-cover rounded" />
+                <div className="flex-1">
+                    <p className="text-sm text-white font-medium line-clamp-2">{res.title}</p>
+                    <a
+                    href={res.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-400 hover:underline"
+                    >
+                    View on YouTube
+                    </a>
+                </div>
+                <button
+                    onClick={() =>
+                    handleFieldChange(
+                        'resources',
+                        module.resources.filter((_, i) => i !== idx)
+                    )
+                    }
+                    className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-500"
+                >
+                    Remove
+                </button>
+                </div>
+            ))}
+            </div>
+        </div>
+        )}
     </div>
   );
 };
