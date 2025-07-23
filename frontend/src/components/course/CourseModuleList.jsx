@@ -1,5 +1,6 @@
 import React from 'react';
 import ModuleEditor from './ModuleEditor';
+import Spinner from '../../components/Spinner'
 
 const CourseModuleList = ({
   modules,
@@ -10,6 +11,7 @@ const CourseModuleList = ({
   courseTitle,
   courseDescription,
   suggestions = [],
+  loading,
 }) => {
   return (
     <div className="space-y-4">
@@ -17,13 +19,13 @@ const CourseModuleList = ({
         <h2 className="text-lg font-semibold">Modules</h2>
         <button
           onClick={onAdd}
-          disabled={!canAdd}
-          className={`px-3 py-1.5 rounded-md transition font-medium
-            ${canAdd
+          disabled={!canAdd || loading}
+          className={`px-3 py-1.5 rounded-md transition font-medium flex items-center justify-center gap-2
+            ${canAdd && !loading
               ? 'bg-primary text-white hover:bg-primary-hover'
               : 'bg-gray-600 text-gray-300 cursor-not-allowed'}`}
         >
-          Add Module
+          {loading ? <Spinner /> : 'Add Module'}
         </button>
       </div>
 

@@ -155,7 +155,7 @@ const ModuleEditor = ({
           value={module.content}
           onChange={(e) => handleFieldChange('content', e.target.value)}
           rows={4}
-          className="w-full px-3 py-2 pr-10 rounded-md bg-gray-700 border border-gray-600 text-white resize-none"
+          className="w-full px-3 py-2 pr-10 rounded-md bg-gray-700 border border-gray-600 text-white resize-none overflow-auto custom-scroll-hide"
           placeholder="Module content..."
         />
         <SparkAIButton onClick={handleGenerateContent} loading={loadingContent} />

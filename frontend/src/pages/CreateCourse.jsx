@@ -12,11 +12,13 @@ const CreateCourse = () => {
   const [modules, setModules] = useState([]);
   const [suggestionPool, setSuggestionPool] = useState([]);
   const [usedSuggestions, setUsedSuggestions] = useState([]);
+  const [moduleLoading, setModuleLoading] = useState(false);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!title.trim() || !description.trim()) return;
 
+      setModuleLoading(true); // ⬅️ start spinner
       try {
         const res = await axios.post('/ai/generate-modules', {
           title,
@@ -28,11 +30,14 @@ const CreateCourse = () => {
         setModules([]);
       } catch (err) {
         console.error('❌ Failed to fetch module suggestions:', err?.response?.data || err.message);
+      } finally {
+        setModuleLoading(false); // ⬅️ stop spinner
       }
     };
 
     fetchSuggestions();
   }, [title, description]);
+
 
   const handleGenerateDescription = async () => {
     if (!title.trim()) return alert('Please enter a course title first.');
@@ -143,6 +148,7 @@ const CreateCourse = () => {
         canAdd={title.trim() && description.trim()}
         courseTitle={title}
         courseDescription={description}
+        loading={moduleLoading}
         suggestions={suggestionPool.filter(s => !usedSuggestions.includes(s))}
       />
 
