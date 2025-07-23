@@ -3,6 +3,7 @@ import axios from '../api/axiosInstance';
 import CourseTitleInput from '../components/course/CourseTitleInput';
 import CourseDescriptionInput from '../components/course/CourseDescriptionInput';
 import CourseModuleList from '../components/course/CourseModuleList';
+import CommonLayout from '../components/CommonLayout';
 
 const CreateCourse = () => {
   const [title, setTitle] = useState('');
@@ -121,8 +122,9 @@ const CreateCourse = () => {
 
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Create a New Course</h1>
+  <CommonLayout>
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <h1 className="text-3xl font-bold mb-2">Create a New Course</h1>
 
       <CourseTitleInput value={title} onChange={setTitle} />
 
@@ -147,12 +149,13 @@ const CreateCourse = () => {
       <div className="pt-4">
         <button
           onClick={handleSubmit}
-          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500"
         >
           Submit Course
         </button>
       </div>
     </div>
+  </CommonLayout>
   );
 };
 

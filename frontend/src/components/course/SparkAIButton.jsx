@@ -14,7 +14,8 @@ export default function SparkAIButton({
       onClick={onClick}
       title={title}
       disabled={loading}
-      className={`absolute bottom-2 right-2 bg-primary text-white rounded-full p-1 hover:bg-primary-hover transition disabled:opacity-50 ${className}`}
+      className={`absolute bottom-[14px] right-[8px] bg-primary text-white rounded-full p-[6px] hover:bg-primary-hover transition disabled:opacity-50 ${className}`}
+
     >
       {loading ? (
         <Loader2 size={iconSize} className="animate-spin" />
