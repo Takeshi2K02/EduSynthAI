@@ -23,6 +23,7 @@ type CourseType = {
 export default function CourseDetail() {
   const { id } = useParams();
   const [course, setCourse] = useState<CourseType | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -73,14 +74,23 @@ export default function CourseDetail() {
                 {module.quizzes.map((quiz, i) => (
                   <div key={i} className="mb-4 p-3 border border-gray-700 rounded-md">
                     <p className="font-semibold mb-1">Q: {quiz.question}</p>
-                    <ul className="list-disc ml-6 text-gray-300">
+                    <div className="space-y-1 mt-2">
                       {quiz.options.map((opt, j) => (
-                        <li key={j} className={opt.isCorrect ? 'text-green-400' : ''}>{opt.text}</li>
+                        <label key={j} className="flex items-center gap-2 text-gray-300">
+                          <input
+                            type="radio"
+                            name={`quiz-${i}`}
+                            value={j}
+                            checked={selectedAnswers[i] === j}
+                            onChange={() =>
+                              setSelectedAnswers((prev) => ({ ...prev, [i]: j }))
+                            }
+                            className="accent-blue-600"
+                          />
+                          {opt.text}
+                        </label>
                       ))}
-                    </ul>
-                    {quiz.explanation && (
-                      <p className="text-sm text-gray-500 mt-2 italic">Explanation: {quiz.explanation}</p>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>
